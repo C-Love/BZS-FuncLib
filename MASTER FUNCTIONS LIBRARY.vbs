@@ -3600,7 +3600,7 @@ function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
     END IF
     row = 1
     col = 1
-    EMSearch "function: ", row, col
+    EMSearch "Function: ", row, col
     If row <> 0 then
       EMReadScreen MAXIS_function, 4, row, col + 10
       EMReadScreen STAT_note_check, 4, 2, 45
@@ -5008,7 +5008,11 @@ function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 '--- This function writes to MAXIS in Krabappel only 
 '~~~~~ abps_supp_coop,abps_gc_status: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator
-	call navigate_to_MAXIS_screen("STAT","PARE")							'Starts by creating an array of all the kids on PARE
+	Do 
+		call navigate_to_MAXIS_screen("STAT","PARE")							'Starts by creating an array of all the kids on PARE
+		EMReadScreen panel_check, 4, 2, 43
+		if panel_check <> "PARE" Then transmit
+	Loop until panel_check = "PARE"
 	EMReadScreen abps_pare_check, 1, 2, 78
 	If abps_pare_check = "0" then
 		MsgBox "No PARE exists. Exiting Creating ABPS."
@@ -5062,7 +5066,11 @@ function write_panel_to_MAXIS_ACCT(acct_type, acct_numb, acct_location, acct_bal
 '--- This function writes to MAXIS in Krabappel only 
 '~~~~~ acct_type, acct_numb, acct_location, acct_balance, acct_bal_ver, acct_date, acct_withdraw, acct_cash_count, acct_snap_count, acct_HC_count, acct_GRH_count, acct_IV_count, acct_joint_owner, acct_share_ratio, acct_interest_date_mo, acct_interest_date_yr: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator	
-	Call navigate_to_MAXIS_screen("STAT", "ACCT")  'navigates to the stat panel
+	Do
+		Call navigate_to_MAXIS_screen("STAT", "ACCT")  'navigates to the stat panel
+		EMReadScreen panel_check, 4, 2, 44
+		if panel_check <> "ACCT" Then transmit
+	Loop until panel_check = "ACCT"
 	call create_panel_if_nonexistent
 	Emwritescreen acct_type, 6, 44  'enters the account type code
 	Emwritescreen acct_numb, 7, 44  'enters the account number
@@ -5104,7 +5112,11 @@ function write_panel_to_MAXIS_ACUT(ACUT_shared, ACUT_heat, ACUT_air, ACUT_electr
 '--- This function writes to MAXIS in Krabappel only 
 '~~~~~ ACUT_shared, ACUT_heat, ACUT_air, ACUT_electric, ACUT_fuel, ACUT_garbage, ACUT_water, ACUT_sewer, ACUT_other, ACUT_phone, ACUT_heat_verif, ACUT_air_verif, ACUT_electric_verif, ACUT_fuel_verif, ACUT_garbage_verif, ACUT_water_verif, ACUT_sewer_verif, ACUT_other_verif: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator
-	call navigate_to_MAXIS_screen("STAT", "ACUT")
+	Do
+		call navigate_to_MAXIS_screen("STAT", "ACUT")
+		EMReadScreen panel_check, 4, 2, 52
+		if panel_check <> "ACUT" Then transmit
+	Loop until panel_check = "ACUT"
 	call create_panel_if_nonexistent
 		EMWritescreen ACUT_shared, 6, 42
 		EMWritescreen ACUT_heat, 10, 61
@@ -5132,7 +5144,11 @@ function write_panel_to_MAXIS_BILS(bils_1_ref_num, bils_1_serv_date, bils_1_serv
 '--- This function writes to MAXIS in Krabappel only 
 '~~~~~ bils_1_ref_num, bils_1_serv_date, bils_1_serv_type, bils_1_gross_amt, bils_1_third_party, bils_1_verif, bils_1_bils_type, bils_2_ref_num, bils_2_serv_date, bils_2_serv_type, bils_2_gross_amt, bils_2_third_party, bils_2_verif, bils_2_bils_type, bils_3_ref_num, bils_3_serv_date, bils_3_serv_type, bils_3_gross_amt, bils_3_third_party, bils_3_verif, bils_3_bils_type, bils_4_ref_num, bils_4_serv_date, bils_4_serv_type, bils_4_gross_amt, bils_4_third_party, bils_4_verif, bils_4_bils_type, bils_5_ref_num, bils_5_serv_date, bils_5_serv_type, bils_5_gross_amt, bils_5_third_party, bils_5_verif, bils_5_bils_type, bils_6_ref_num, bils_6_serv_date, bils_6_serv_type, bils_6_gross_amt, bils_6_third_party, bils_6_verif, bils_6_bils_type, bils_7_ref_num, bils_7_serv_date, bils_7_serv_type, bils_7_gross_amt, bils_7_third_party, bils_7_verif, bils_7_bils_type, bils_8_ref_num, bils_8_serv_date, bils_8_serv_type, bils_8_gross_amt, bils_8_third_party, bils_8_verif, bils_8_bils_type, bils_9_ref_num, bils_9_serv_date, bils_9_serv_type, bils_9_gross_amt, bils_9_third_party, bils_9_verif, bils_9_bils_type: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator	
-	CALL navigate_to_MAXIS_screen("STAT", "BILS")
+	Do
+		CALL navigate_to_MAXIS_screen("STAT", "BILS")
+		EMReadScreen panel_check, 4, 2, 54
+		if panel_check <> "BILS" Then transmit
+	Loop until panel_check = "BILS"
 	EMReadScreen ERRR_check, 4, 2, 52			'Checking for the ERRR screen
 	If ERRR_check = "ERRR" then transmit		'If the ERRR screen is found, it transmits
 	EMReadScreen num_of_BILS, 1, 2, 78
@@ -5302,7 +5318,11 @@ function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, bu
 '--- This function writes to MAXIS in Krabappel only (writes using the variables read off of the specialized excel template to the busi panel in MAXIS)
 '~~~~~ busi_type, busi_start_date, busi_end_date, busi_cash_total_retro, busi_cash_total_prosp, busi_cash_total_ver, busi_IV_total_prosp, busi_IV_total_ver, busi_snap_total_retro, busi_snap_total_prosp, busi_snap_total_ver, busi_hc_total_prosp_a, busi_hc_total_ver_a, busi_hc_total_prosp_b, busi_hc_total_ver_b, busi_cash_exp_retro, busi_cash_exp_prosp, busi_cash_exp_ver, busi_IV_exp_prosp, busi_IV_exp_ver, busi_snap_exp_retro, busi_snap_exp_prosp, busi_snap_exp_ver, busi_hc_exp_prosp_a, busi_hc_exp_ver_a, busi_hc_exp_prosp_b, busi_hc_exp_ver_b, busi_retro_hours, busi_prosp_hours, busi_hc_total_est_a, busi_hc_total_est_b, busi_hc_exp_est_a, busi_hc_exp_est_b, busi_hc_hours_est: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator		
-	Call navigate_to_MAXIS_screen("STAT", "BUSI")  'navigates to the stat panel
+	Do
+		Call navigate_to_MAXIS_screen("STAT", "BUSI")  'navigates to the stat panel
+		EMReadScreen panel_check, 4, 2, 51
+		if panel_check <> "BUSI" Then transmit
+	Loop until panel_check = "BUSI"
 	Emwritescreen reference_number, 20, 76
 	transmit
 
@@ -5431,7 +5451,11 @@ function write_panel_to_MAXIS_CARS(cars_type, cars_year, cars_make, cars_model, 
 '--- This function writes to MAXIS in Krabappel only
 '~~~~~ cars_type, cars_year, cars_make, cars_model, cars_trade_in, cars_loan, cars_value_source, cars_ownership_ver, cars_amount_owed, cars_amount_owed_ver, cars_date, cars_use, cars_HC_benefit, cars_joint_owner, cars_share_ratio: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator		
-	Call navigate_to_MAXIS_screen("STAT", "CARS")  'navigates to the stat screen
+	Do
+		Call navigate_to_MAXIS_screen("STAT", "CARS")  'navigates to the stat screen
+		EMReadScreen panel_check, 4, 2, 44
+		if panel_check <> "CARS" Then transmit
+	Loop until panel_check = "CARS"
 	call create_panel_if_nonexistent
 	Emwritescreen cars_type, 6, 43  'enters the vehicle type
 	Emwritescreen cars_year, 8, 31  'enters the vehicle year
@@ -6145,7 +6169,11 @@ function write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 '--- This function writes to MAXIS in Krabappel only
 '~~~~~ jobs_number, jobs_inc_type, jobs_inc_verif, jobs_employer_name, jobs_inc_start, jobs_wkly_hrs, jobs_hrly_wage, jobs_pay_freq: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator
-	call navigate_to_MAXIS_screen("STAT", "JOBS")
+	Do
+		call navigate_to_MAXIS_screen("STAT", "JOBS")
+		EMReadScreen panel_check, 4, 2, 45
+		if panel_check <> "JOBS" Then transmit
+	Loop until panel_check = "JOBS"
 	EMWriteScreen reference_number, 20, 76
 	EMWriteScreen jobs_number, 20, 79
 	transmit
