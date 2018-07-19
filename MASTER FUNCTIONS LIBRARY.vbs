@@ -22,6 +22,9 @@ Dim STATS_counter, STATS_manualtime, STATS_denomination
 time_array_15_min = array("7:00 AM", "7:15 AM", "7:30 AM", "7:45 AM", "8:00 AM", "8:15 AM", "8:30 AM", "8:45 AM", "9:00 AM", "9:15 AM", "9:30 AM", "9:45 AM", "10:00 AM", "10:15 AM", "10:30 AM", "10:45 AM", "11:00 AM", "11:15 AM", "11:30 AM", "11:45 AM", "12:00 PM", "12:15 PM", "12:30 PM", "12:45 PM", "1:00 PM", "1:15 PM", "1:30 PM", "1:45 PM", "2:00 PM", "2:15 PM", "2:30 PM", "2:45 PM", "3:00 PM", "3:15 PM", "3:30 PM", "3:45 PM", "4:00 PM", "4:15 PM", "4:30 PM", "4:45 PM", "5:00 PM", "5:15 PM", "5:30 PM", "5:45 PM", "6:00 PM")
 time_array_30_min = array("7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM")
 
+'Array of all the upcoming holidays
+HOLIDAYS_ARRAY = Array(#9/3/18#, #11/12/18#, #11/22/18#, #11/23/18#, #12/24/18#, #12/25/18#, #1/1/19#, #1/21/19#, #2/18/19#, #5/27/19#, #7/4/19#)
+
 'Determines CM and CM+1 month and year using the two rightmost chars of both the month and year. Adds a "0" to all months, which will only pull over if it's a single-digit-month
 Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr
 'var equals...  the right part of...    the specific part...    of either today or next month... just the right 2 chars!
@@ -2076,6 +2079,23 @@ function change_client_name_to_FML(client_name)
 	change_client_name_to_FML = client_name 'To make this a return function, this statement must set the value of the function name
 end function
 
+function change_date_to_soonest_working_day(date_to_change)
+'--- This function will change a date that is on a weekend or Hennepin County holiday to the next working date before the date provided, the date will remain the same if it is not a holiday or weekend.
+'~~~~~ date_to_change: variable in the form of a date - this will change once the function is called
+'===== Keywords: MAXIS, date, change
+    Do
+        is_holiday = FALSE
+        For each holiday in HOLIDAYS_ARRAY
+            If holiday = date_to_change Then
+                is_holiday = TRUE
+                date_to_change = DateAdd("d", -1, date_to_change)
+            End If
+        Next
+        If WeekdayName(WeekDay(date_to_change)) = "Saturday" Then date_to_change = DateAdd("d", -1, date_to_change)
+        If WeekdayName(WeekDay(date_to_change)) = "Sunday" Then date_to_change = DateAdd("d", -2, date_to_change)
+    Loop until is_holiday = FALSE
+end function
+
 function changelog_display()
 '--- This function determines if the user has been informed of a change to a script, and if not will display a mesage box with the script's change log information
 '===== Keywords: MAXIS, PRISM, change, info, information
@@ -3162,6 +3182,20 @@ function HH_member_custom_dialog(HH_member_array)
 
 	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
 	HH_member_array = SPLIT(HH_member_array, " ")
+end function
+
+function is_date_holiday_or_weekend(date_to_review, boolean_variable)
+'--- This function reviews a date to determine if it falls on a weekend or Hennepin County holiday
+'~~~~~ date_to_review: this should be in the form of a date
+'~~~~~ boolean_variable: this returns TRUE if the date is a weekend or holiday, FALSE if it is not
+'==== Keywords: MAXIS, dates, boolean
+    non_working_day = FALSE
+    day_of_week = WeekdayName(WeekDay(date_to_review))
+    If day_of_week = "Saturday" OR day_of_week = "Sunday" Then non_working_day = TRUE
+    For each holiday in HOLIDAYS_ARRAY
+        If holiday = date_to_review Then non_working_day = TRUE
+    Next
+    boolean_variable = non_working_day
 end function
 
 function log_usage_stats_without_closing()
@@ -4933,8 +4967,10 @@ function write_variable_in_SPEC_MEMO(variable)
 '--- This function writes a variable in SPEC/MEMO
 '~~~~~ variable: information to be entered into SPEC/MEMO
 '===== Keywords: MAXIS, SPEC, MEMO
+
     EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
     memo_col = 15										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+    MsgBox "Row - " & memo_row
     'The following figures out if we need a new page
     Do
         EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
