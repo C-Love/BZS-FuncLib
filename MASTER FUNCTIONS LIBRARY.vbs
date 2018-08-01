@@ -2806,6 +2806,7 @@ function excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbo
 	Set objExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
 	objExcel.Visible = visible_status
 	Set objWorkbook = objExcel.Workbooks.Open(file_url) 'Opens an excel file from a specific URL
+    ''(file.Path,,,, "mypassword",,,,,,,,,,)
 	objExcel.DisplayAlerts = alerts_status
 end function
 
@@ -4491,28 +4492,37 @@ function write_date(date_variable, date_format_variable, screen_row, screen_col)
 	'Figures out the format of the month. If it was "MM", "M", or not present.
 	If instr(ucase(date_format_variable), "MM") <> 0 then
 		month_format = "MM"
+        month_position = instr(ucase(date_format_variable), "MM")
 	Elseif instr(ucase(date_format_variable), "M") <> 0 then
 		month_format = "M"
+        month_position = instr(ucase(date_format_variable), "M")
 	Else
 		month_format = ""
+        month_position = 0
 	End if
 
 	'Figures out the format of the day. If it was "DD", "D", or not present.
 	If instr(ucase(date_format_variable), "DD") <> 0 then
 		day_format = "DD"
+        day_position = instr(ucase(date_format_variable), "DD")
 	Elseif instr(ucase(date_format_variable), "D") <> 0 then
 		day_format = "D"
+        day_position = instr(ucase(date_format_variable), "D")
 	Else
 		day_format = ""
+        day_position = 0
 	End if
 
 	'Figures out the format of the year. If it was "YYYY", "YY", or not present.
 	If instr(ucase(date_format_variable), "YYYY") <> 0 then
 		year_format = "YYYY"
+        year_position = instr(ucase(date_format_variable), "YYYY")
 	Elseif instr(ucase(date_format_variable), "YY") <> 0 then
 		year_format = "YY"
+        year_position = instr(ucase(date_format_variable), "YY")
 	Else
 		year_format = ""
+        year_position = 0
 	End if
 
 	'Formats the month. Separates the month into its own variable and adds a zero if needed.
@@ -4530,24 +4540,28 @@ function write_date(date_variable, date_format_variable, screen_row, screen_col)
 		var_year = datepart("yyyy", date_variable)
 	END IF
 
-	'Imports the date_variable into a new variable
-	output_date_variable = date_format_variable
-
-	'Condenses date format to remove excess letters. This way, we can easily replace the default details.
-	output_date_variable = replace(output_date_variable, "MM", "M")
-	output_date_variable = replace(output_date_variable, "DD", "D")
-	output_date_variable = replace(output_date_variable, "YYYY", "YY")
-
-	'Replacing the output_date_variable with the actual dates based on the above logic
-	output_date_variable = replace(output_date_variable, "M", var_month)
-	output_date_variable = replace(output_date_variable, "D", var_day)
-	output_date_variable = replace(output_date_variable, "YY", var_year)
-
-	'Writing the output_date_variable to screen
-	For i = 1 to len(output_date_variable)
-		screen_col_to_write = screen_col + (i - 1)
-		EMWriteScreen mid(output_date_variable, i, 1), screen_row, screen_col_to_write
-	Next
+    If month_position <> 0 Then EMWriteScreen var_month, screen_row, screen_col + month_position - 1
+    If day_position <> 0 Then EMWriteScreen var_day, screen_row, screen_col + day_position - 1
+    If year_position <> 0 Then EMWriteScreen var_year, screen_row, screen_col + year_position - 1
+    '
+	' 'Imports the date_variable into a new variable
+	' output_date_variable = date_format_variable
+    '
+	' 'Condenses date format to remove excess letters. This way, we can easily replace the default details.
+	' output_date_variable = replace(output_date_variable, "MM", "M")
+	' output_date_variable = replace(output_date_variable, "DD", "D")
+	' output_date_variable = replace(output_date_variable, "YYYY", "YY")
+    '
+	' 'Replacing the output_date_variable with the actual dates based on the above logic
+	' output_date_variable = replace(output_date_variable, "M", var_month)
+	' output_date_variable = replace(output_date_variable, "D", var_day)
+	' output_date_variable = replace(output_date_variable, "YY", var_year)
+    '
+	' 'Writing the output_date_variable to screen
+	' For i = 1 to len(output_date_variable)
+	' 	screen_col_to_write = screen_col + (i - 1)
+	' 	EMWriteScreen mid(output_date_variable, i, 1), screen_row, screen_col_to_write
+	' Next
 end function
 
 function write_MAXIS_info_to_ES_database(ESCaseNbr, ESMembNbr, ESMembName, EsSanctionPercentage, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, ESDisaEnd, ESPrimaryActivity, ESDate, ESSite, ESCounselor, ESActive, insert_string)
@@ -4970,7 +4984,7 @@ function write_variable_in_SPEC_MEMO(variable)
 
     EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
     memo_col = 15										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
-    MsgBox "Row - " & memo_row
+
     'The following figures out if we need a new page
     Do
         EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
